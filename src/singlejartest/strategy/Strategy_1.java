@@ -91,18 +91,19 @@ public class Strategy_1 implements IStrategy {
                 if(bar_min.getLow()>askBar.getLow()){
                     bar_min=askBar;
                     bar_max=null;
-                }
+                    return;
+                } else {
+                    if ((bar_max.getHigh() - bar_min.getLow()) / bar_min.getLow() > len) {
+                        last_pick_its_max = false;
+                        candidats.add(new Candidat(bar_min, bar_max, true));
+                        //chart.add(factory.createSignalUp(askBar.toString(),bar_min.getTime(), bar_min.getLow()*0.9995));
+                        ITextChartObject text = factory.createText(askBar.toString(), bar_min.getTime(), bar_min.getLow() * 0.9995);
+                        text.setText(String.valueOf(new char[]{8226}), new Font(Font.DIALOG, Font.PLAIN, 20));
+                        text.setColor(Color.GREEN);
+                        chart.add(text);
+                        bar_min = null;
 
-                if((bar_max.getHigh()-bar_min.getLow())/bar_min.getLow()>len){
-                    last_pick_its_max=false;
-                    candidats.add(new Candidat(bar_min,bar_max,true));
-                    //chart.add(factory.createSignalUp(askBar.toString(),bar_min.getTime(), bar_min.getLow()*0.9995));
-                    ITextChartObject text = factory.createText(askBar.toString(),bar_min.getTime(), bar_min.getLow()*0.9995);
-                    text.setText(String.valueOf(new char[] {8226}), new Font(Font.DIALOG, Font.PLAIN, 20));
-                    text.setColor(Color.GREEN);
-                    chart.add(text);
-                    bar_min=null;
-
+                    }
                 }
 
             }
@@ -115,18 +116,18 @@ public class Strategy_1 implements IStrategy {
                 if(bar_max.getHigh()<askBar.getHigh()){
                     bar_min=null;
                     bar_max=askBar;
-                }
+                } else {
+                    if ((bar_max.getHigh() - bar_min.getLow()) / bar_min.getLow() > len) {
+                        last_pick_its_max = true;
+                        candidats.add(new Candidat(bar_min, bar_max, false));
+                        //chart.add(factory.createSignalDown(askBar.toString(),bar_max.getTime(), bar_max.getHigh()));
+                        ITextChartObject text = factory.createText(askBar.toString(), bar_max.getTime(), bar_max.getHigh());
+                        text.setText(String.valueOf(new char[]{8226}), new Font(Font.DIALOG, Font.PLAIN, 20));
+                        text.setColor(Color.RED);
+                        chart.add(text);
+                        bar_max = null;
 
-                if((bar_max.getHigh()-bar_min.getLow())/bar_min.getLow()>len){
-                    last_pick_its_max=true;
-                    candidats.add(new Candidat(bar_min,bar_max,false));
-                    //chart.add(factory.createSignalDown(askBar.toString(),bar_max.getTime(), bar_max.getHigh()));
-                    ITextChartObject text = factory.createText(askBar.toString(),bar_max.getTime(), bar_max.getHigh());
-                    text.setText(String.valueOf(new char[] {8226}), new Font(Font.DIALOG, Font.PLAIN, 20));
-                    text.setColor(Color.RED);
-                    chart.add(text);
-                    bar_max=null;
-
+                    }
                 }
             }
 
