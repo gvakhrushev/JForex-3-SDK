@@ -1,4 +1,4 @@
-package singlejartest;
+package singlejartest.strategy;
 
 import com.dukascopy.api.*;
 import com.dukascopy.api.feed.*;
@@ -6,7 +6,7 @@ import com.dukascopy.api.feed.IFeedDescriptor;
 import com.dukascopy.api.feed.util.*;
 import java.util.*;
 
-public class Strategy implements IStrategy {
+public class New_Strategy implements IStrategy {
     private IEngine engine;
     private IConsole console;
     private IHistory history;

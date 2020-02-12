@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dukascopy.api.Instrument;
-import singlejartest.MA_Play;
+import singlejartest.strategy.MA_Play;
 
 import java.io.File;
 

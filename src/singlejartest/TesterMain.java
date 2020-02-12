@@ -36,6 +36,7 @@ import com.dukascopy.api.system.ITesterClient;
 import com.dukascopy.api.system.TesterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import singlejartest.strategy.MA_Play;
 
 import java.io.File;
 import java.util.HashSet;
