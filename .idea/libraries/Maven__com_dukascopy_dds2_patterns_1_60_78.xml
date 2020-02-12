@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.dukascopy.dds2:patterns:1.60.78">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/dukascopy/dds2/patterns/1.60.78/patterns-1.60.78.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/dukascopy/dds2/patterns/1.60.78/patterns-1.60.78-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/dukascopy/dds2/patterns/1.60.78/patterns-1.60.78-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

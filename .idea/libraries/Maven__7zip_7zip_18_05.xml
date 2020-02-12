@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: 7zip:7zip:18.05">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/7zip/7zip/18.05/7zip-18.05.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/7zip/7zip/18.05/7zip-18.05-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/7zip/7zip/18.05/7zip-18.05-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
