@@ -71,6 +71,7 @@ import com.dukascopy.api.system.tester.ITesterUserInterface;
 import com.dukascopy.api.system.tester.ITesterVisualModeParameters;
 import com.dukascopy.charts.view.drawingstrategies.IVisualisationDrawingStrategy;
 import singlejartest.strategy.Strategy_1;
+import singlejartest.strategy.Strategy_2;
 
 /**
  * This small program demonstrates how to initialize Dukascopy tester and start a strategy in GUI mode
@@ -170,8 +171,8 @@ public class GUIModeTesterMain extends JFrame implements ITesterUserInterface, I
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-		Date dateFrom = dateFormat.parse("05/25/2016 12:00:00");
-		Date dateTo = dateFormat.parse("06/26/2016 00:00:00");
+		Date dateFrom = dateFormat.parse("05/25/2018 12:00:00");
+		Date dateTo = dateFormat.parse("08/26/2018 00:00:00");
 
 		client.setDataInterval(ITesterClient.DataLoadingMethod.TICKS_WITH_TIME_INTERVAL, dateFrom.getTime(), dateTo.getTime());
 
@@ -237,7 +238,7 @@ public class GUIModeTesterMain extends JFrame implements ITesterUserInterface, I
 
 		// Start strategy
 		client.startStrategy(
-				new Strategy_1(),
+				new Strategy_2(),
 				new LoadingProgressListener() {
 					@Override
 					public void dataLoaded(long startTime, long endTime, long currentTime, String information) {
@@ -613,6 +614,7 @@ class JPeriodComboBox extends JComboBox implements ItemListener {
 		this.addItemListener(this);
 
 		periods.put(Period.THIRTY_SECS, DataType.TIME_PERIOD_AGGREGATION);
+		periods.put(Period.ONE_MIN, DataType.TIME_PERIOD_AGGREGATION);
 		periods.put(Period.FIVE_MINS, DataType.TIME_PERIOD_AGGREGATION);
 		periods.put(Period.TEN_MINS, DataType.TIME_PERIOD_AGGREGATION);
 		periods.put(Period.THIRTY_MINS, DataType.TIME_PERIOD_AGGREGATION);

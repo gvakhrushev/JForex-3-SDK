@@ -176,7 +176,7 @@ public class Strategy_1 implements IStrategy {
         boolean Update(IBar bar){
             if(its_up_wave){
                 if(price>bar.getLow()){
-                    chart.add(factory.createSignalUp(bar.toString(),bar_min.getTime(), bar_min.getLow()));
+                    chart.add(factory.createSignalUp(Long.toString(bar.getTime())+"s",bar.getTime(), bar.getLow()));
                     ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
                     text.setText(Double.toString(price).substring(0,6));
                     text.setColor(Color.GREEN);
@@ -185,14 +185,14 @@ public class Strategy_1 implements IStrategy {
                     else open_order(false,Instrument.EURUSD,max_bar);
                     return false;
                 } else {
-                    if(bar.getHigh()>max_bar.getHigh()){
+                    if(bar.getHigh()>=max_bar.getHigh()){
                         max_bar=bar;
                         price= max_bar.getHigh() - (max_bar.getHigh()-min_bar.getLow())*prozent;
                     }
                 }
             } else {
                 if(price<bar.getHigh()){
-                    chart.add(factory.createSignalDown(bar.toString(),bar_max.getTime(), bar_max.getHigh()));
+                    chart.add(factory.createSignalDown(Long.toString(bar.getTime())+"s",bar.getTime(), bar.getHigh()));
                     ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
                     text.setText(Double.toString(price).substring(0,6));
                     text.setColor(Color.RED);
@@ -201,7 +201,7 @@ public class Strategy_1 implements IStrategy {
                     else open_order(false,Instrument.EURUSD,max_bar);
                     return false;
                 } else {
-                    if(bar.getLow()<min_bar.getLow()){
+                    if(bar.getLow()<=min_bar.getLow()){
                         min_bar=bar;
                         price= max_bar.getHigh() - (max_bar.getHigh()-min_bar.getLow())*(1-prozent);
                     }
