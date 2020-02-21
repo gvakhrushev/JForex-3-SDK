@@ -194,12 +194,12 @@ public class GUIModeTesterMain extends JFrame implements ITesterUserInterface, I
 
 		//set instruments that will be used in testing
 		final Set<Instrument> instruments = new HashSet<Instrument>();
-		instruments.add(Instrument.EURUSD);
+		instruments.add(Instrument.GBPUSD);
 
 		LOGGER.info("Subscribing instruments...");
 		client.setSubscribedInstruments(instruments);
 		//setting initial deposit
-		client.setInitialDeposit(Instrument.EURUSD.getSecondaryCurrency(), 50000);
+		client.setInitialDeposit(Instrument.GBPUSD.getSecondaryCurrency(), 50000);
 		//load data
 		LOGGER.info("Downloading data");
 		Future<?> future = client.downloadData(null);
@@ -229,7 +229,7 @@ public class GUIModeTesterMain extends JFrame implements ITesterUserInterface, I
 			public Map<Instrument, ITesterIndicatorsParameters> getTesterIndicatorsParameters() {
 				Map<Instrument, ITesterIndicatorsParameters> indicatorParameters = new HashMap<Instrument, ITesterIndicatorsParameters>();
 				IndicatorParameterBean indicatorParameterBean = new IndicatorParameterBean();
-				indicatorParameters.put(Instrument.EURUSD, indicatorParameterBean);
+				indicatorParameters.put(Instrument.GBPUSD, indicatorParameterBean);
 				return indicatorParameters;
 			}
 		}

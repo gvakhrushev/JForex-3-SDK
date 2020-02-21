@@ -24,7 +24,7 @@ public class Strategy_2 implements IStrategy {
     private double len=0.001;
     int x=0;
     double max_balance=0;
-    private double prozent=0.8;
+    private double prozent=0.7;
     private ArrayList<Candidat> candidats = new ArrayList();
     private ArrayList<Candidat> candidats_open = new ArrayList();
     private ArrayList<IBar> peaks= new ArrayList<>();
@@ -35,22 +35,20 @@ public class Strategy_2 implements IStrategy {
     double f=1;
     int z=0;
     int b=0;
-    private Instrument instrument=Instrument.EURUSD;
-    @Configurable("Instrument")
-    public ArrayList<Instrument> instruments = new ArrayList<>();
 
+    @Configurable("Instrument")
+    public Instrument instrument = Instrument.GBPUSD;
 
 
 
     public void onStart(IContext context) throws JFException {
-
         this.engine = context.getEngine();
         this.console = context.getConsole();
         this.history = context.getHistory();
         this.context = context;
         this.indicators = context.getIndicators();
         this.userInterface = context.getUserInterface();
-        chart = context.getChart(instruments.get(0));
+        chart = context.getChart(instrument);
         factory = chart.getChartObjectFactory();
         max_balance=context.getAccount().getEquity();
 
@@ -74,25 +72,10 @@ public class Strategy_2 implements IStrategy {
 
     public void onBar(Instrument instrument, Period period, IBar askBar, IBar bidBar) throws JFException {
         if(period==chart.getSelectedPeriod()){
-            ITextChartObject t = factory.createText("t", askBar.getTime()+1000, askBar.getHigh());
+            /*ITextChartObject t = factory.createText("t", askBar.getTime()+1000, askBar.getHigh());
             t.setText(x+" "+coint_true+" "+coint_false+" "+1.0*coint_true/(coint_false+coint_true));
             t.setColor(Color.GREEN);
-            chart.add(t);
-
-
-                if(max_balance*1.05<context.getAccount().getEquity()){
-                    max_balance=context.getAccount().getEquity();
-                    try{
-                        b=0;
-                        for (IOrder o : engine.getOrders()){
-                            o.close();
-                        }
-                    }catch(Exception e){
-                    }
-
-                }
-
-
+            chart.add(t);*/
 
             //первичная инициализация максимальных баров
             if(bar_max==null) bar_max=askBar;
@@ -105,19 +88,14 @@ public class Strategy_2 implements IStrategy {
                     if (update<0) {
                         if(update==-1){
                             coint_true++;
-                            z++;
-                            f=f-(z*z/10);
-                            if(f<1){
-                                f=1;
-                                z=0;
-                            }
                         }
                         candidats.remove(index);
                         index--;
                     } else if(update>0) {
                         if(update==1){
+                            chart.add(
+                            candidats.get(index).shortLine);
                             coint_false++;
-                            f=f+1;
                         }
                     }
                     index++;
@@ -143,7 +121,7 @@ public class Strategy_2 implements IStrategy {
                         ITextChartObject text = factory.createText(askBar.toString(), bar_min.getTime(), bar_min.getLow() * 0.9995);
                         text.setText(String.valueOf(new char[]{8226}), new Font(Font.DIALOG, Font.PLAIN, 20));
                         text.setColor(Color.GREEN);
-                        chart.add(text);
+                        //chart.add(text);
                         peaks.add(bar_min);
                         bar_min = null;
 
@@ -168,7 +146,7 @@ public class Strategy_2 implements IStrategy {
                         ITextChartObject text = factory.createText(askBar.toString(), bar_max.getTime(), bar_max.getHigh());
                         text.setText(String.valueOf(new char[]{8226}), new Font(Font.DIALOG, Font.PLAIN, 20));
                         text.setColor(Color.RED);
-                        chart.add(text);
+                        //chart.add(text);
                         peaks.add(bar_max);
                         bar_max = null;
 
@@ -180,37 +158,13 @@ public class Strategy_2 implements IStrategy {
 
     }
 
-    void open_order(boolean buy, Instrument instrument,IBar bar,Candidat candidat){
-        try {
-            /*for (IOrder o : engine.getOrders()){
-                o.close();
-            }*/
 
-            x++;
-            IOrder order;
-            if (!buy&&b!=-1) {
-                candidat.order=engine.submitOrder("order"+ x, instrument, IEngine.OrderCommand.SELL, context.getAccount().getEquity()/context.getAccount().getBalance()/(candidat.max_bar.getHigh()-candidat.min_bar.getLow())/1000,0,0,0,0);
-                b=1;
-                //order= engine.submitOrder("order"+ x, Instrument.EURUSD, IEngine.OrderCommand.BUY, 1.01);
-
-
-            }
-            else if(buy&&b!=1)  {
-                candidat.order=engine.submitOrder("order"+ x, instrument, IEngine.OrderCommand.BUY, context.getAccount().getEquity()/context.getAccount().getBalance()/(candidat.max_bar.getHigh()-candidat.min_bar.getLow())/1000,0,0,0,0);
-
-                //order= engine.submitOrder("order"+ x, Instrument.EURUSD, IEngine.OrderCommand.SELL, 1.01);
-
-            }
-            candidat.x=x;
-
-        }catch (Exception e){
-
-        }
-    }
 
     public class Candidat {
         IBar min_bar;
         IBar max_bar;
+        IBar open_bar;
+        IBar bar_s;
         double price;
         boolean its_up_wave;
         boolean its_zz_wave=false;
@@ -218,6 +172,8 @@ public class Strategy_2 implements IStrategy {
         int peak_id;
         IOrder order;
         int x;
+
+        IShortLineChartObject shortLine;
 
         Candidat(IBar min_bar, IBar max_bar, boolean its_up_wave) {
             this.max_bar = max_bar;
@@ -241,11 +197,7 @@ public class Strategy_2 implements IStrategy {
                     its_zz_wave_level=true;
                     if (!its_zz_wave&&its_zz(bar)) {
                         its_zz_wave=true;
-                        chart.add(factory.createSignalUp(Long.toString(bar.getTime()) + "s", bar.getTime(), bar.getLow()));
-                        ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
-                        text.setText(Double.toString(price).substring(0, 6));
-                        text.setColor(Color.GREEN);
-                        chart.add(text);
+                        //print_arrows(bar);
                         if (this.its_up_wave) open_order(false, instrument, min_bar,this);
                         else open_order(true, instrument, max_bar,this);
                     }
@@ -272,11 +224,7 @@ public class Strategy_2 implements IStrategy {
                     its_zz_wave_level=true;
                     if (!its_zz_wave&&its_zz(bar)) {
                         its_zz_wave=true;
-                        chart.add(factory.createSignalDown(Long.toString(bar.getTime()) + "s", bar.getTime(), bar.getHigh()));
-                        ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
-                        text.setText(Double.toString(price).substring(0, 6));
-                        text.setColor(Color.RED);
-                        chart.add(text);
+                        //print_arrows(bar);
                         if (this.its_up_wave) open_order(false, instrument, min_bar,this);
                         else open_order(true, instrument, max_bar,this);
                     }
@@ -306,7 +254,7 @@ public class Strategy_2 implements IStrategy {
             if (peaks.size() > 10&&peak_id>0) {
 
                 if (its_up_wave) {
-                    IBar bar_s=peaks.get(peak_id-1);
+                    bar_s=peaks.get(peak_id-1);
                     for (int id = peak_id- 1; id >= 0; id--) {
                         if (max_bar.getHigh() <= peaks.get(id).getHigh()) {
                             return false;
@@ -320,7 +268,7 @@ public class Strategy_2 implements IStrategy {
                         }
                     }
                 } else {
-                    IBar bar_s=peaks.get(peak_id-1);
+                    bar_s=peaks.get(peak_id-1);
                     for (int id = peak_id - 1; id >= 0; id--) {
                         if (min_bar.getLow() >= peaks.get(id).getLow()) {
                             return false;
@@ -337,14 +285,58 @@ public class Strategy_2 implements IStrategy {
             return false;
 
         }
+        // метод отрисовки zz
+        void print_line(long t1, double p1,long t2, double p2,String zz_key){
+            IShortLineChartObject shortLine = factory.createShortLine(zz_key,
+                    t1, p1,
+                    t2, p2);
+            this.shortLine=shortLine;
+            //chart.add(shortLine);
+        }
+        // метод отрисовки стрелок
+        void print_arrows(IBar bar) {
+            if (its_up_wave) {
+                chart.add(factory.createSignalUp(Long.toString(bar.getTime()) + "s", bar.getTime(), bar.getLow()));
+                ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
+                text.setText(Double.toString(price).substring(0, 6));
+                text.setColor(Color.GREEN);
+                chart.add(text);
+            } else {
+                chart.add(factory.createSignalDown(Long.toString(bar.getTime()) + "s", bar.getTime(), bar.getHigh()));
+                ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
+                text.setText(Double.toString(price).substring(0, 6));
+                text.setColor(Color.RED);
+                chart.add(text);
+            }
+        }
     }
 
-    //метод для отрисовки зигзага
-    void print_line(long t1, double p1,long t2, double p2,String zz_key){
-        IShortLineChartObject shortLine = factory.createShortLine(zz_key,
-                t1, p1,
-                t2, p2);
-        chart.add(shortLine);
+    void open_order(boolean buy, Instrument instrument,IBar bar,Candidat candidat){
+        try {
+            /*for (IOrder o : engine.getOrders()){
+                o.close();
+            }*/
+
+            x++;
+            IOrder order;
+            if (!buy&&b!=-1) {
+                //candidat.order=engine.submitOrder("order"+ x, Instrument.EURUSD, IEngine.OrderCommand.SELL, context.getAccount().getEquity()/context.getAccount().getBalance()/(candidat.max_bar.getHigh()-candidat.min_bar.getLow())/100,0,0,0,0);
+                b=1;
+                //order= engine.submitOrder("order"+ x, Instrument.EURUSD, IEngine.OrderCommand.BUY, 1.01);
+
+
+            }
+            else if(buy&&b!=1)  {
+                //candidat.order=engine.submitOrder("order"+ x, Instrument.EURUSD, IEngine.OrderCommand.BUY, context.getAccount().getEquity()/context.getAccount().getBalance()/(candidat.max_bar.getHigh()-candidat.min_bar.getLow())/1000,0,0,0,0);
+
+                //order= engine.submitOrder("order"+ x, Instrument.EURUSD, IEngine.OrderCommand.SELL, 1.01);
+
+            }
+            candidat.x=x;
+
+        }catch (Exception e){
+
+        }
     }
 
 }
