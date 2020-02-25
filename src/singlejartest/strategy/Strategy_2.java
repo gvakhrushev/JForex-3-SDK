@@ -24,7 +24,8 @@ public class Strategy_2 implements IStrategy {
     private double len=0.001;
     int x=0;
     double max_balance=0;
-    private double prozent=0.7;
+    private double zz_prozent_2=0.8;
+    private double zz_prozent_1=0.8;
     private ArrayList<Candidat> candidats = new ArrayList();
     private ArrayList<Candidat> candidats_open = new ArrayList();
     private ArrayList<IBar> peaks= new ArrayList<>();
@@ -181,10 +182,10 @@ public class Strategy_2 implements IStrategy {
             this.its_up_wave = its_up_wave;
             this.peak_id=peaks.size();
             if (this.its_up_wave) {
-                price = max_bar.getHigh() - (max_bar.getHigh() - min_bar.getLow()) * (prozent);
+                price = max_bar.getHigh() - (max_bar.getHigh() - min_bar.getLow()) * (zz_prozent_2);
 
             } else {
-                price = max_bar.getHigh() - (max_bar.getHigh() - min_bar.getLow()) * (1 - prozent);
+                price = max_bar.getHigh() - (max_bar.getHigh() - min_bar.getLow()) * (1 - zz_prozent_2);
             }
 
 
@@ -197,7 +198,7 @@ public class Strategy_2 implements IStrategy {
                     its_zz_wave_level=true;
                     if (!its_zz_wave&&its_zz(bar)) {
                         its_zz_wave=true;
-                        //print_arrows(bar);
+                        print_arrows(bar);
                         if (this.its_up_wave) open_order(false, instrument, min_bar,this);
                         else open_order(true, instrument, max_bar,this);
                     }
@@ -208,7 +209,7 @@ public class Strategy_2 implements IStrategy {
                 } else {
                     if (bar.getHigh() >= max_bar.getHigh()) {
                         max_bar = bar;
-                        price = max_bar.getHigh() - (max_bar.getHigh() - min_bar.getLow()) * prozent;
+                        price = max_bar.getHigh() - (max_bar.getHigh() - min_bar.getLow()) * zz_prozent_2;
                         if(its_zz_wave_level){
                             its_zz_wave_level=false;
                             if(its_zz_wave){
@@ -224,7 +225,7 @@ public class Strategy_2 implements IStrategy {
                     its_zz_wave_level=true;
                     if (!its_zz_wave&&its_zz(bar)) {
                         its_zz_wave=true;
-                        //print_arrows(bar);
+                        print_arrows(bar);
                         if (this.its_up_wave) open_order(false, instrument, min_bar,this);
                         else open_order(true, instrument, max_bar,this);
                     }
@@ -235,7 +236,7 @@ public class Strategy_2 implements IStrategy {
                 } else {
                     if (bar.getLow() <= min_bar.getLow()) {
                         min_bar = bar;
-                        price = max_bar.getHigh() - (max_bar.getHigh() - min_bar.getLow()) * (1 - prozent);
+                        price = max_bar.getHigh() - (max_bar.getHigh() - min_bar.getLow()) * (1 - zz_prozent_2);
                         if(its_zz_wave_level){
                             its_zz_wave_level=false;
                             if(its_zz_wave){
@@ -259,9 +260,13 @@ public class Strategy_2 implements IStrategy {
                         if (max_bar.getHigh() <= peaks.get(id).getHigh()) {
                             return false;
                         } else {
-                            if(bar_s.getHigh()<peaks.get(id).getHigh()&&peaks.get(id).getHigh()<max_bar.getHigh()) bar_s=peaks.get(id);
+                            if(bar_s.getHigh()<peaks.get(id).getHigh()&&peaks.get(id).getHigh()<max_bar.getHigh()) {
+                                bar_s = peaks.get(id);
+                            }
 
-                            if (min_bar.getLow() > peaks.get(id).getLow()) {
+                            if(bar_s.getHigh()>=max_bar.getHigh()) return false;
+
+                            if (min_bar.getLow() > peaks.get(id).getLow()&& len_first_vawe_its_good()) {
                                 print_line(bar_s.getTime(),bar_s.getHigh(),bar.getTime(),price,bar.getTime()+"zz");
                                 return true;
                             }
@@ -273,8 +278,12 @@ public class Strategy_2 implements IStrategy {
                         if (min_bar.getLow() >= peaks.get(id).getLow()) {
                             return false;
                         } else {
-                            if(bar_s.getLow()>peaks.get(id).getLow()&&peaks.get(id).getLow()>min_bar.getLow()) bar_s=peaks.get(id);
-                            if (max_bar.getHigh() < peaks.get(id).getHigh()) {
+                            if(bar_s.getLow()>peaks.get(id).getLow()&&peaks.get(id).getLow()>min_bar.getLow()){
+                                bar_s=peaks.get(id);
+                            }
+
+                            if(bar_s.getLow()<=min_bar.getLow()) return false;
+                            if (max_bar.getHigh() < peaks.get(id).getHigh()&& len_first_vawe_its_good()) {
                                 print_line(bar_s.getTime(),bar_s.getLow(),bar.getTime(),price,bar.getTime()+"zz");
                                 return true;
                             }
@@ -295,6 +304,7 @@ public class Strategy_2 implements IStrategy {
         }
         // метод отрисовки стрелок
         void print_arrows(IBar bar) {
+            /*
             if (its_up_wave) {
                 chart.add(factory.createSignalUp(Long.toString(bar.getTime()) + "s", bar.getTime(), bar.getLow()));
                 ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
@@ -308,6 +318,27 @@ public class Strategy_2 implements IStrategy {
                 text.setColor(Color.RED);
                 chart.add(text);
             }
+
+             */
+        }
+        // метод проверки длинны первой волны zz
+        boolean len_first_vawe_its_good(){
+            if(its_up_wave){
+                if ((this.bar_s.getHigh()-min_bar.getLow())>=(max_bar.getHigh()-min_bar.getLow())*zz_prozent_1) return true;
+            } else {
+                if ((max_bar.getHigh()-this.bar_s.getLow())>=(max_bar.getHigh()-min_bar.getLow())*zz_prozent_1) return true;
+            }
+            return false;
+        }
+
+        // метод проверки длинны второй волны zz
+        boolean len_last_vawe_its_good(){
+            if(its_up_wave){
+                if ((this.bar_s.getHigh()-min_bar.getLow())>=(max_bar.getHigh()-min_bar.getLow())*zz_prozent_1) return true;
+            } else {
+                if ((max_bar.getHigh()-this.bar_s.getLow())>=(max_bar.getHigh()-min_bar.getLow())*zz_prozent_1) return true;
+            }
+            return false;
         }
     }
 
