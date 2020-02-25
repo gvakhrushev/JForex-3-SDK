@@ -24,9 +24,14 @@ public class Strategy_3 implements IStrategy {
     int x = 10;
     double max_balance = 0;
     private double prozent_2 = 0.8;
-    private double prozent_1 = 0.4;
+    private double prozent_1 = 0.6;
     private ArrayList<Candidat> candidats = new ArrayList();
+    private ArrayList<Candidat> candidats_open = new ArrayList();
+
     private ArrayList<Peak_IBar> peaks = new ArrayList<>();
+
+    @Configurable("Instrument")
+    public Instrument instrument = Instrument.GBPUSD;
 
     public void onStart(IContext context) throws JFException {
         this.engine = context.getEngine();
@@ -62,6 +67,9 @@ public class Strategy_3 implements IStrategy {
             if (bar_max == null) bar_max = askBar;
             if (bar_min == null) bar_min = askBar;
 
+            //
+            int coint_peaks=peaks.size();
+
             // определяем вершину
             if (last_pick_its_max) {
                 if (bar_max.getHigh() < askBar.getHigh()) {
@@ -75,8 +83,9 @@ public class Strategy_3 implements IStrategy {
                     if ((bar_max.getHigh() - bar_min.getLow()) / bar_min.getLow() > len) {
                         peaks.add(new Peak_IBar(bar_min, false, peaks.size()));
                         last_pick_its_max = false;
-                        if (peaks.size() > 2)
+                        if (peaks.size() > 3) {
                             candidats.add(new Candidat(peaks.get(peaks.size() - 1), peaks.get(peaks.size() - 2), false));
+                        }
                         //chart.add(factory.createSignalUp(askBar.toString(),bar_min.getTime(), bar_min.getLow()*0.9995));
                         ITextChartObject text = factory.createText(askBar.toString(), bar_min.getTime(), bar_min.getLow() * 0.9995);
                         text.setText(String.valueOf(new char[]{8226}), new Font(Font.DIALOG, Font.PLAIN, 20));
@@ -100,8 +109,10 @@ public class Strategy_3 implements IStrategy {
                     if ((bar_max.getHigh() - bar_min.getLow()) / bar_min.getLow() > len) {
                         peaks.add(new Peak_IBar(bar_max, true, peaks.size()));
                         last_pick_its_max = true;
-                        if (peaks.size() > 2)
+                        if (peaks.size() > 3) {
                             candidats.add(new Candidat(peaks.get(peaks.size() - 2), peaks.get(peaks.size() - 1), false));
+
+                        }
                         //chart.add(factory.createSignalDown(askBar.toString(),bar_max.getTime(), bar_max.getHigh()));
                         ITextChartObject text = factory.createText(askBar.toString(), bar_max.getTime(), bar_max.getHigh());
                         text.setText(String.valueOf(new char[]{8226}), new Font(Font.DIALOG, Font.PLAIN, 20));
@@ -113,10 +124,16 @@ public class Strategy_3 implements IStrategy {
                 }
             }
 
-            //
-            if(candidats.size()>0){
-                for(int id=0;id<candidats.size();id++){
 
+            //
+            if(peaks.size()>coint_peaks) {
+                if (candidats.size() > 0) {
+                    for (int id = 0; id < candidats.size(); id++) {
+                        if(candidats.get(id).delete_candidat(peaks.get(coint_peaks))){
+                            candidats.remove(id);
+                            id--;
+                        }
+                    }
                 }
             }
         }
@@ -128,6 +145,7 @@ public class Strategy_3 implements IStrategy {
         Peak_IBar max_bar;
         Peak_IBar zz_bar_1=null;
         boolean its_up_wave;
+        boolean zz_open=false;
 
         Candidat(Peak_IBar min_bar, Peak_IBar max_bar, boolean its_up_wave) {
             this.max_bar = max_bar;
@@ -199,6 +217,35 @@ public class Strategy_3 implements IStrategy {
                         t2, p2);
             }
             chart.add(shortLine);
+        }
+
+        boolean delete_candidat(Peak_IBar peak){
+            if(its_up_wave){
+                if(max_bar.bar.getHigh()<=peak.bar.getHigh()) {
+                    max_bar=peak;
+                    zz_open=false;
+                }
+                if(prozent_1>zz_bar_1.bar.getHigh()) return true;
+                if(prozent_2>peak.bar.getLow()&&!zz_open){
+                    candidats_open.add(new Candidat(min_bar,max_bar,its_up_wave));
+                    print_zz(peak.bar.getTime(),price_2());
+                    zz_open=true;
+                }
+                if(min_bar.bar.getLow()>=peak.bar.getLow()) return true;
+            } else {
+                if(min_bar.bar.getLow()>=peak.bar.getLow()) {
+                    min_bar=peak;
+                    zz_open=false;
+                }
+                if(prozent_1<zz_bar_1.bar.getLow()) return true;
+                if(prozent_2<peak.bar.getHigh()&&!zz_open){
+                    candidats_open.add(new Candidat(min_bar,max_bar,its_up_wave));
+                    print_zz(peak.bar.getTime(),price_2());
+                    zz_open=true;
+                }
+                if(max_bar.bar.getHigh()<=peak.bar.getHigh()) return true;
+            }
+            return false;
         }
 
     }

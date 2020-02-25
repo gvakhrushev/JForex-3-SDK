@@ -72,7 +72,7 @@ import com.dukascopy.api.system.tester.ITesterVisualModeParameters;
 import com.dukascopy.charts.view.drawingstrategies.IVisualisationDrawingStrategy;
 import singlejartest.strategy.Strategy_1;
 import singlejartest.strategy.Strategy_2;
-
+import singlejartest.strategy.Strategy_3;
 /**
  * This small program demonstrates how to initialize Dukascopy tester and start a strategy in GUI mode
  */
@@ -238,7 +238,7 @@ public class GUIModeTesterMain extends JFrame implements ITesterUserInterface, I
 
 		// Start strategy
 		client.startStrategy(
-				new Strategy_2(),
+				new Strategy_3(),
 				new LoadingProgressListener() {
 					@Override
 					public void dataLoaded(long startTime, long endTime, long currentTime, String information) {
