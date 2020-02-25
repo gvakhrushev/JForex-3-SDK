@@ -133,6 +133,7 @@ public class Strategy_3 implements IStrategy {
             this.max_bar = max_bar;
             this.min_bar = min_bar;
             this.its_up_wave = its_up_wave;
+            search_zz_bar_1();
         }
 
         double price_2() {
@@ -151,79 +152,36 @@ public class Strategy_3 implements IStrategy {
             }
         }
 
-       /* boolean Update(IBar bar){
-            if(its_up_wave){
-                if(price>bar.getLow()){
-                    chart.add(factory.createSignalUp(Long.toString(bar.getTime())+"s",bar.getTime(), bar.getLow()));
-                    ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
-                    text.setText(Double.toString(price).substring(0,6));
-                    text.setColor(Color.GREEN);
-                    chart.add(text);
-                    if(this.its_up_wave) open_order(true,Instrument.EURUSD,min_bar);
-                    else open_order(false,Instrument.EURUSD,max_bar);
-                    return false;
-                } else {
-                    if(bar.getHigh()>=max_bar.getHigh()){
-                        max_bar=bar;
-                        price= max_bar.getHigh() - (max_bar.getHigh()-min_bar.getLow())*prozent;
-                    }
-                }
-            } else {
-                if(price<bar.getHigh()){
-                    chart.add(factory.createSignalDown(Long.toString(bar.getTime())+"s",bar.getTime(), bar.getHigh()));
-                    ITextChartObject text = factory.createText(Long.toString(bar.getTime()), bar.getTime(), price);
-                    text.setText(Double.toString(price).substring(0,6));
-                    text.setColor(Color.RED);
-                    chart.add(text);
-                    if(this.its_up_wave) open_order(true,Instrument.EURUSD,min_bar);
-                    else open_order(false,Instrument.EURUSD,max_bar);
-                    return false;
-                } else {
-                    if(bar.getLow()<=min_bar.getLow()){
-                        min_bar=bar;
-                        price= max_bar.getHigh() - (max_bar.getHigh()-min_bar.getLow())*(1-prozent);
-                    }
-                }
-            }
-            return true;
-        }*/
-
-        boolean vawe_1_its_zz(){
-            boolean its_zz=false;
-            for(int id=min_bar.peak_id;id>=0;id--){
+        void search_zz_bar_1(){
+            if(peaks.size()>3){
                 if(its_up_wave){
-                    if(peaks.get(id).bar.getHigh()>=max_bar.bar.getHigh()) return false;
-                    if(peaks.get(id).bar.getHigh()>=price_1()) {
-                        if(zz_bar_1==null){
-                            zz_bar_1=peaks.get(id);
-                        }else {
-                            if(zz_bar_1.bar.getHigh()<=peaks.get(id).bar.getHigh()){
-                                zz_bar_1=peaks.get(id);
+                    for(int id=min_bar.peak_id-1;id>=0;id--) {
+                        if (zz_bar_1 == null) {
+                            zz_bar_1 = peaks.get(id);
+                        } else {
+                            if (zz_bar_1.bar.getHigh() <= peaks.get(id).bar.getHigh()) {
+                                zz_bar_1 = peaks.get(id);
+                            } else if (peaks.get(id).bar.getLow() >= min_bar.bar.getLow()) {
+                                return;
                             }
                         }
-                        its_zz=true;
-                    }
-                    if(peaks.get(id).bar.getLow()<min_bar.bar.getLow()){
-                        return its_zz;
                     }
                 } else {
-                    if(peaks.get(id).bar.getLow()<=min_bar.bar.getLow()) return false;
-                    if(peaks.get(id).bar.getLow()<=price_1()){
-                        if(zz_bar_1==null){
-                            zz_bar_1=peaks.get(id);
-                        }else {
-                            if(zz_bar_1.bar.getLow()>=peaks.get(id).bar.getLow()){
-                                zz_bar_1=peaks.get(id);
+                    for(int id=max_bar.peak_id-1;id>=0;id--) {
+                        if (zz_bar_1 == null) {
+                            zz_bar_1 = peaks.get(id);
+                        } else {
+                            if (zz_bar_1.bar.getLow() >= peaks.get(id).bar.getLow()) {
+                                zz_bar_1 = peaks.get(id);
+                            } else if (peaks.get(id).bar.getHigh() <= max_bar.bar.getHigh()) {
+                                return;
                             }
                         }
-                        its_zz=true;
                     }
-                    if(peaks.get(id).bar.getHigh()<max_bar.bar.getHigh()){
-                        return its_zz;
-                    }
+
                 }
             }
-            return false;
+
         }
 
         void print_zz(long t2, double p2){
