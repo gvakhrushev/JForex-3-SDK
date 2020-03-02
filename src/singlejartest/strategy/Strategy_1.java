@@ -24,7 +24,8 @@ public class Strategy_1 implements IStrategy {
     double max_balance=0;
     private double prozent=0.8;
     private ArrayList<Candidat> candidats = new ArrayList();
-
+    @Configurable("Instrument")
+    public Instrument instrument = Instrument.GBPUSD;
     public void onStart(IContext context) throws JFException {
         this.engine = context.getEngine();
         this.console = context.getConsole();
@@ -32,7 +33,6 @@ public class Strategy_1 implements IStrategy {
         this.context = context;
         this.indicators = context.getIndicators();
         this.userInterface = context.getUserInterface();
-         Instrument instrument = Instrument.EURUSD;
         chart = context.getChart(instrument);
         factory = chart.getChartObjectFactory();
         max_balance=context.getAccount().getEquity();

@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import singlejartest.strategy.MA_Play;
 import singlejartest.strategy.Strategy_1;
+import singlejartest.strategy.Strategy_4;
 
 import java.io.File;
 import java.util.HashSet;
@@ -66,7 +67,8 @@ public class TesterMain {
         loadData();
 
         LOGGER.info("Starting strategy");
-        client.startStrategy(new Strategy_1(), getLoadingProgressListener());
+        client.startStrategy(new Strategy_4(), getLoadingProgressListener());
+
 
         //now it's running
     }
@@ -125,7 +127,7 @@ public class TesterMain {
     private static void subscribeToInstruments() {
         //set instruments that will be used in testing
         Set<Instrument> instruments = new HashSet<>();
-        instruments.add(Instrument.EURUSD);
+        instruments.add(Instrument.XAUUSD);
         LOGGER.info("Subscribing instruments...");
         client.setSubscribedInstruments(instruments);
     }
