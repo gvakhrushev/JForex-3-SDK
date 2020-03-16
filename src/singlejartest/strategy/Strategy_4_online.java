@@ -167,6 +167,7 @@ public class Strategy_4_online implements IStrategy {
         Peak_IBar min_bar;
         Peak_IBar max_bar;
         Peak_IBar zz_bar_1=null;
+        Peak_IBar zz_bar_2=null;
         boolean its_up_wave;
         boolean zz_open=false;
         double v1=0;
@@ -247,23 +248,29 @@ public class Strategy_4_online implements IStrategy {
 
         }
 
-        void print_zz(long t2, double p2){
+        void print_zz(){
             if(print_mode) {
+                get_zz_bars(zz_bar_2.bar.getTime(), zz_bar_2.bar.getHigh());
+
                 IShortLineChartObject shortLine;
                 if (its_up_wave) {
                     shortLine = factory.createShortLine(
-                            max_bar.bar.getTime() + ""+min_bar.bar.getTime(),
+                            max_bar.bar.getTime() + "zz"+min_bar.bar.getTime(),
                             zz_bar_1.bar.getTime(), zz_bar_1.bar.getHigh(),
-                            t2, p2);
+                            zz_bar_2.bar.getTime(), price_2());
 
                 } else {
                     shortLine = factory.createShortLine(
-                            max_bar.bar.getTime() + ""+min_bar.bar.getTime(),
+                            max_bar.bar.getTime() + "zz"+min_bar.bar.getTime(),
                             zz_bar_1.bar.getTime(), zz_bar_1.bar.getLow(),
-                            t2, p2);
+                            zz_bar_2.bar.getTime(), price_2());
                 }
-                chart.add(shortLine);
-                get_zz_bars(t2,p2);
+                //if(v1/v2>0.5&&v1/v2<2) {
+                    chart.add(shortLine);
+                    print_v(zz_bar_2.bar.getTime(),price_2()+0.03);
+
+                //}
+
             }
             //chart.add(factory.createSignalUp(peaks.size()+"down",min_bar.bar.getTime(), min_bar.bar.getLow()));
         }
@@ -276,8 +283,9 @@ public class Strategy_4_online implements IStrategy {
                 }
                 if(price_1()>zz_bar_1.bar.getHigh()) return true;
                 if(price_2()>peak.bar.getLow()&&!zz_open&&zz_bar_1.bar.getHigh()<max_bar.bar.getHigh()){
-                    candidats_open.add(new Candidat(min_bar,max_bar,its_up_wave));
-                    print_zz(peak.bar.getTime(),peak.bar.getHigh());
+                    Candidat open=new Candidat(min_bar,max_bar,its_up_wave);
+                    open.zz_bar_2=peak;
+                    candidats_open.add(open);
                     zz_open=true;
                 }
                 if(min_bar.bar.getLow()>=peak.bar.getLow()) return true;
@@ -288,8 +296,9 @@ public class Strategy_4_online implements IStrategy {
                 }
                 if(price_1()<zz_bar_1.bar.getLow()) return true;
                 if(price_2()<peak.bar.getHigh()&&!zz_open&&zz_bar_1.bar.getLow()>min_bar.bar.getLow()){
-                    candidats_open.add(new Candidat(min_bar,max_bar,its_up_wave));
-                    print_zz(peak.bar.getTime(),peak.bar.getLow());
+                    Candidat open=new Candidat(min_bar,max_bar,its_up_wave);
+                    open.zz_bar_2=peak;
+                    candidats_open.add(open);
                     zz_open=true;
                 }
                 if(max_bar.bar.getHigh()<=peak.bar.getHigh()) return true;
@@ -300,15 +309,27 @@ public class Strategy_4_online implements IStrategy {
         int result_open_candidat(Peak_IBar peak){
             int result=0;
             if(its_up_wave){
-                if(max_bar.bar.getHigh()<=peak.bar.getHigh()) result= 1;
+                if(max_bar.bar.getHigh()<=peak.bar.getHigh()) {
+                    result= 1;
+                }
                 if(min_bar.bar.getLow()>=peak.bar.getLow()) result = -1;
             }else {
                 if(max_bar.bar.getHigh()<=peak.bar.getHigh()) result =-1;
-                if(min_bar.bar.getLow()>=peak.bar.getLow()) result= 1;
+                if(min_bar.bar.getLow()>=peak.bar.getLow()) {
+                    result= 1;
+                }
             }
-            if(result==1) tp++;
+            if(result==1) {
+                tp++;
+
+            }
             if(result==-1) ls++;
-            if(result != 0) print_candidate_open_state(result,peak);
+            if(result != 0){
+                //print_candidate_open_state(result,peak);
+                print_zz();
+
+
+            }
             return result;
         }
 
@@ -340,12 +361,20 @@ public class Strategy_4_online implements IStrategy {
                 for(IBar bar:bars) {
                     p=get_fx(t2,p2,bar.getTime());
                     if(its_up_wave){
+                        if(price_2()>=bar.getLow()&&bar.getTime()>max_bar.bar.getTime()) {
+                            zz_bar_2.bar=bar;
+                            break;
+                        }
                         if(bar.getHigh()<p) v1=v1+p-bar.getHigh();
                         if(bar.getLow()>p) v2=v2+bar.getLow()-p;
 
                         if(bar.getLow()<p) v1_max=v1_max+p-bar.getLow();
                         if(bar.getHigh()>p) v2_max=v2_max+bar.getHigh()-p;
                     } else {
+                        if(price_2()<=bar.getHigh()&&bar.getTime()>min_bar.bar.getTime()) {
+                            zz_bar_2.bar=bar;
+                            break;
+                        }
                         if(bar.getHigh()<p) v2=v2+p-bar.getHigh();
                         if(bar.getLow()>p) v1=v1+bar.getLow()-p;
 
@@ -354,7 +383,6 @@ public class Strategy_4_online implements IStrategy {
                     }
 
                 }
-                print_v(v1,v2,t2,p2+0.03);
 
             } catch (Exception e){
 
@@ -373,10 +401,13 @@ public class Strategy_4_online implements IStrategy {
             return p1+(t-t1)*(p2-p1)/(t2-t1);
         }
 
-        void print_v(double v1, double v2,long t2, double p2){
+        void print_v(long t2, double p2){
             ITextChartObject text = factory.createText(t2+"v"+v2, t2, p2);
             text.setText(
-                    "v="+ Double.toString(v1/v2).substring(0, 4)+" "+ Double.toString(v1).substring(0,4) + " " + Double.toString(v2).substring(0,4) + "\n"+
+                    "v="+ Double.toString(v1/v2).substring(0, 4)+" "+Double.toString(price_2()).substring(0,7)+" "
+                            +Double.toString(max_bar.bar.getHigh()).substring(0,7)+" "
+                            +Double.toString(min_bar.bar.getLow()).substring(0,7)+" "
+                            + Double.toString(v1).substring(0,4) + " " + Double.toString(v2).substring(0,4) + "\n"+
                      "v_max="+ Double.toString(v1_max/v2_max).substring(0, 4)+" "+ Double.toString(v1_max).substring(0,4) + " " + Double.toString(v2_max).substring(0,4) + "\n"
 
             );
